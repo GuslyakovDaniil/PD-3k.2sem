@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head">
+    <div th:replace="fragments/navbar">Navbar</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Book</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+          crossorigin="anonymous">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Add Book</h2>
+    <form th:action="@{/books/add}" th:method="post" class="mt-4" id="addBookForm">
+        <div class="form-group">
+            <label for="title">Название:</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="author">Автор:</label>
+            <input type="text" class="form-control" id="author" name="author" required>
+        </div>
+        <div class="form-group">
+            <label for="genre">Жанр:</label>
+            <input type="text" class="form-control" id="genre" name="genre" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание:</label>
+            <input type="text" class="form-control" id="description" name="description" required>
+        </div>
+        <div class="form-group">
+            <input type="hidden" name="level" value="true">
+            <input type="checkbox" id="level" name="level" style="display: none;">
+        </div>
+        <div class="form-group">
+            <label for="location">Корпус:</label>
+            <select class="form-control" id="location" name="location_id" required>
+                <option th:each="location : ${locations}" th:value="${location.id}" th:text="${location.name_location}"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="number">Количество:</label>
+            <input type="number" class="form-control" id="number" name="number" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить книгу</button>
+    </form>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var addBookForm = document.getElementById('addBookForm');
+            addBookForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                var currentUrl = window.location.href;
+                fetch(this.action, {
+                    method: this.method,
+                    body: new FormData(this)
+                })
+                .then(function(response) {
+                    if (response.ok) {
+                        window.location.href = currentUrl;
+                    } else {
+                        console.error('Ошибка HTTP: ' + response.status);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Ошибка fetch:', error);
+                });
+            });
+
+            var logoutForm = document.getElementById('logoutForm');
+            logoutForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+
+                var currentUrl = window.location.href;
+                fetch(this.action, {
+                    method: this.method,
+                    body: new FormData(this)
+                })
+                .then(function(response) {
+                    if (response.ok) {
+                        window.location.href = currentUrl;
+                    } else {
+                        console.error('Ошибка HTTP: ' + response.status);
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Ошибка fetch:', error);
+                });
+            });
+        });
+    </script>
+</div>
+</body>
+</html>

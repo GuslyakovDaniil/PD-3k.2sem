@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/head"/>
+<body>
+<div th:replace="fragments/navbar">Navbar</div>
+<main>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <main class="jumbotron text-center rounded col-md-12 align-self-center pt-5">
+        <div class="justify-content-center">
+          <h1>Профиль</h1>
+        </div>
+        <div class="row bg-light rounded">
+          <div class="col-md-6" th:object="${user}">
+            <h2>Информация:</h2>
+            <h4 th:text="'Username: ' + *{username}"></h4>
+            <h4 th:text="'Email: ' + *{email}"></h4>
+            <b>Роль: </b>
+            <div sec:authentication="principal.authorities"></div>
+          </div>
+          <div class="col-md-6"><img src="/pic/user.png" height="350px"></div>
+        </div>
+        <div id="dateResult"></div>
+        <div id="penalty"></div>
+      </main>
+      <div>
+        <h2>Забронированные книги:</h2>
+        <ul th:each="book : ${books}">
+          <li th:text="${book.title}"></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+<footer th:replace="fragments/footer"/>
+<script th:inline="javascript">
+  var earliestReservationDate = /*[[${#dates.format(earliestReservationDate, 'yyyy-MM-dd')}]]*/ '';
+  var currentYear = new Date().getFullYear();
+  var date1 = currentYear + '-01-26';
+  var date2 = currentYear + '-07-26';
+</script>
+<script>
+  var earliestDate = new Date(earliestReservationDate);
+  var date1 = new Date(date1);
+  var date2 = new Date(date2);
+  var deadlineDate;
+
+<!--  var today = new Date(currentYear, 7, 1);-->
+
+  if (earliestDate < date1) {
+      document.getElementById("dateResult").innerText = "Срок сдачи до: 26.01." + (new Date().getFullYear() + 1);
+      deadlineDate = new Date(currentYear + 1, 0, 26);
+  } else {
+      document.getElementById("dateResult").innerText = "Срок сдачи до: 26.07." + new Date().getFullYear();
+      deadlineDate = new Date(currentYear, 6, 26);
+  }
+
+
+  function calculatePenalty() {
+    var currentDate = new Date();
+    var daysLate = 0;
+    if (currentDate > deadlineDate) {
+      daysLate = Math.ceil((currentDate - date1) / (1000 * 60 * 60 * 24));
+    }
+
+    var penaltyAmount = daysLate * 0.5;
+
+    document.getElementById("penalty").innerText = "Долг за просрочку: " + penaltyAmount.toFixed(2) + " руб.";
+  }
+
+  calculatePenalty();
+</script>
+
+</body>
+</html>

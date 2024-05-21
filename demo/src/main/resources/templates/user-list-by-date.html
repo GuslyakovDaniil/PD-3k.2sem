@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head">
+    <div th:replace="fragments/navbar">Navbar</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список пользователей по дате</title>
+</head>
+<body>
+<h1>Список пользователей</h1>
+<p th:text="'Дата: ' + ${selectedDate}"></p>
+<table>
+    <thead>
+    <tr>
+        <th>Имя пользователя</th>
+        <th>Email</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.username}">Имя пользователя</td>
+        <td th:text="${user.email}">Email</td>
+        <td>
+            <form th:action="@{/reservations/details/{id}(id=${user.id})}" method="get">
+                <input type="hidden" name="selectedDate" th:value="${selectedDate}">
+                <button type="submit">Подробнее</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

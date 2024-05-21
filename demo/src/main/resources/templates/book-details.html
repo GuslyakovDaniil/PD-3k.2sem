@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="~{fragments/head}">
+    <title>Информация о книге</title>
+    <style>
+        .edit-delete-buttons {
+            list-style-type: none;
+            padding: 0;
+        }
+        .edit-delete-buttons li {
+            display: inline;
+            margin-right: 10px;
+        }
+        .edit-delete-buttons li form {
+            display: inline;
+        }
+        .edit-delete-buttons li button {
+            text-decoration: none;
+            padding: 8px 12px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            color: #000;
+            cursor: pointer;
+        }
+        .edit-delete-buttons li button:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar}">Navbar</div>
+<h1>Информация о книге</h1>
+<div>
+    <p><strong>Название:</strong> <span th:text="${book.title}"></span></p>
+    <p><strong>Автор:</strong> <span th:text="${book.author}"></span></p>
+    <p><strong>Жанр:</strong> <span th:text="${book.genre}"></span></p>
+    <p><strong>Описание:</strong> <span th:text="${book.description}"></span></p>
+    <p><strong>Количество:</strong> <span th:text="${book.number}"></span></p>
+</div>
+<ul class="edit-delete-buttons">
+    <li sec:authorize="hasRole('LIBRARY')">
+        <form th:action="@{/books/{id}/edit(id=${book.id})}" method="get">
+            <button type="submit">Редактировать</button>
+        </form>
+    </li>
+    <li sec:authorize="hasRole('LIBRARY')">
+        <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit">Удалить</button>
+        </form>
+    </li>
+</ul>
+<script th:inline="javascript">
+    function decrementNumber() {
+        var numberField = document.getElementById('number');
+        var number = parseInt(numberField.value);
+        if (number > 0) {
+            numberField.value = number - 1;
+        }
+    }
+
+    function updateLevel() {
+        var number = parseInt(document.getElementById('number').value);
+        var levelField = document.getElementById('levelField');
+        if (number <= 0) {
+            levelField.value = false;
+        }
+    }
+</script>
+
+<form th:if="${book.number > 0}" method="post" action="/books/reserve">
+    <label for="reservationDate">Дата бронирования:</label>
+    <input type="date" id="reservationDate" name="reservation_date" required>
+
+    <label for="returnTime">Время возврата:</label>
+    <input type="time" id="returnTime" name="extradition" required>
+
+    <label for="location">Корпус:</label>
+    <select id="location" name="location_id" required>
+        <option th:each="location : ${locations}" th:value="${location.id}" th:text="${location.name_location}"></option>
+    </select>
+
+    <input type="hidden" id="bookId" name="book_id" th:value="${book.id}">
+
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+    <button type="submit" onclick="decrementNumber()">Забронировать</button>
+</form>
+
+<input type="hidden" id="number" value="${book.number}">
+</body>
+</html>

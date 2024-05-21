@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head">
+  <div th:replace="fragments/navbar">Navbar</div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Календарь бронирований</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .calendar {
+        font-size: 20px;
+    }
+    .calendar table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .calendar table th,
+    .calendar table td {
+        width: calc(100% / 7);
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
+    .reserved {
+        border: 2px solid red;
+    }
+  </style>
+</head>
+<body>
+<h1>Календарь бронирований</h1>
+<div id="calendar-container"></div>
+<script>
+    function showCalendar(year, month, reservedDates) {
+        const calendarContainer = document.getElementById("calendar-container");
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDayIndex = new Date(year, month, 1).getDay() - 1;
+        const lastDayIndex = new Date(year, month, daysInMonth).getDay() - 1;
+        const prevMonthDays = new Date(year, month, 0).getDate();
+        const nextMonthDays = new Date(year, month + 1, 0).getDate();
+
+        let prevMonthDaysToShow = [];
+        for (let i = firstDayIndex - 1; i >= 0; i--) {
+            prevMonthDaysToShow.push(prevMonthDays - i);
+        }
+
+        let daysToShow = [];
+        for (let i = 1; i <= daysInMonth; i++) {
+            daysToShow.push(i);
+        }
+
+        let nextMonthDaysToShow = [];
+        for (let i = 1; i <= 6 - lastDayIndex; i++) {
+            nextMonthDaysToShow.push(i);
+        }
+
+        let calendarHTML = `
+            <div class="calendar">
+                <div class="month-year">
+                    <button onclick="showPrevMonth()">❮</button>
+                    <span>${getMonthName(month)} ${year}</span>
+                    <button onclick="showNextMonth()">❯</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Пн</th>
+                            <th>Вт</th>
+                            <th>Ср</th>
+                            <th>Чт</th>
+                            <th>Пт</th>
+                            <th>Сб</th>
+                            <th>Вс</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        let allDays = [...prevMonthDaysToShow, ...daysToShow, ...nextMonthDaysToShow];
+        let week = [];
+        allDays.forEach((day, index) => {
+            if (index % 7 === 0) {
+                if (week.length > 0) {
+                    calendarHTML += "<tr>" + week.join("") + "</tr>";
+                }
+                week = [];
+            }
+            let id = day < 10 ? `0${day}` : `${day}`;
+            let dateString = `${year}-${month + 1}-${id}`;
+            if (reservedDates.includes(dateString)) {
+                week.push(`<td id="${dateString}" class="reserved"><a th:href="@{'/reservations/users?date=' + ${dateString}}">${day}</a></td>`);
+            } else {
+                week.push(`<td id="${dateString}"><a th:href="@{'/reservations/users?date=' + ${dateString}}">${day}</a></td>`);
+            }
+        });
+        calendarHTML += "<tr>" + week.join("") + "</tr>";
+
+        calendarHTML += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        calendarContainer.innerHTML = calendarHTML;
+
+        document.querySelectorAll("td").forEach(td => {
+            td.addEventListener("click", function() {
+                let date = this.id;
+                window.location.href = `/reservations/users?date=${date}`;
+            });
+        });
+    }
+
+    function getMonthName(monthIndex) {
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+        return monthNames[monthIndex];
+    }
+
+    function showPrevMonth() {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        showCalendar(currentYear, currentMonth, reservedDates);
+    }
+
+    function showNextMonth() {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        showCalendar(currentYear, currentMonth, reservedDates);
+    }
+
+    // Переменные для текущего месяца и года
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    const reservedDates = [];
+    showCalendar(currentYear, currentMonth, reservedDates);
+</script>
+
+</body>
+</html>

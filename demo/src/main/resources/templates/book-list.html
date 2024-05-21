@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head">
+    <div th:replace="fragments/navbar">Navbar</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список книг</title>
+    <style>
+        .book-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .book {
+            width: 48%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .book a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Список книг</h1>
+<div class="book-container">
+    <div class="book" th:each="book : ${books}">
+        <a th:href="@{'/books/' + ${book.id}}">
+            <h2 th:text="${book.title}"></h2>
+            <p>Автор: <span th:text="${book.author}"></span></p>
+            <p>Жанр: <span th:text="${book.genre}"></span></p>
+            <p>Описание: <span th:text="${book.description}"></span></p>
+        </a>
+    </div>
+</div>
+<!--<footer th:replace="fragments/footer"/>-->
+</body>
+</html>

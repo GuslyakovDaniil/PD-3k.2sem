@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head">
+  <div th:replace="fragments/navbar">Navbar</div>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Редактирование информации о пользователе</title>
+  <style>
+        .user-details {
+            width: 50%;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .user-details h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="user-details">
+  <h1>Редактирование информации о пользователе</h1>
+  <form th:action="@{'/users/details/update/' + ${user_id}}" method="post" th:object="${userDetails}">
+
+  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <input type="hidden" th:field="*{id}" />
+    <p><strong>Имя пользователя:</strong> <input type="text" th:field="*{username}" /></p>
+    <p><strong>Email:</strong> <input type="email" th:field="*{email}" /></p>
+    <p><strong>Пароль:</strong> <input type="password" th:field="*{password}" /></p>
+    <p><strong>Номер билета:</strong> <input type="text" th:field="*{ticket}" /></p>
+    <p><strong>Роль:</strong>
+      <select th:field="*{role_enum}">
+        <option th:each="role : ${T(com.example.demo.Enums.Role_enum).values()}"
+                th:value="${role}" th:text="${role.getName()}">
+        </option>
+      </select>
+    </p>
+    <button type="submit">Сохранить</button>
+  </form>
+
+</div>
+
+</body>
+</html>

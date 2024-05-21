@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head">
+    <div th:replace="fragments/navbar">Navbar</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список пользователей</title>
+    <style>
+        .user-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .user {
+            width: 48%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .user a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+<div class="search-container">
+    <form th:action="@{/users/search}" method="get">
+        <input type="text" name="search" class="search-input" placeholder="Введите имя, номер билета или email">
+        <button type="submit" class="search-button">Поиск</button>
+    </form>
+</div>
+<h1>Список пользователей</h1>
+<div class="user-container">
+    <div class="user" th:each="user : ${users}">
+        <a th:href="@{'/users/details/' + ${user.id}}">
+            <h2 th:text="${user.username}"></h2>
+            <p>Email: <span th:text="${user.email}"></span></p>
+            <p>Ticket: <span th:text="${user.ticket}"></span></p>
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

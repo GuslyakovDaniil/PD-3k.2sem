@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/head">
+    <div th:replace="fragments/navbar">Navbar</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о пользователе</title>
+    <style>
+        .user-details {
+            width: 50%;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .user-details h2 {
+            margin-top: 0;
+        }
+        .book-details {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+        .reservation-details {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="user-details">
+    <h1>Информация о пользователе</h1>
+    <p><strong>Имя пользователя:</strong> <span th:text="${userDetails.username}"></span></p>
+    <p><strong>Email:</strong> <span th:text="${userDetails.email}"></span></p>
+    <p><strong>Номер билета:</strong> <span th:text="${userDetails.ticket}"></span></p>
+
+
+    <h2>Информация о книгах:</h2>
+    <div class="book-container">
+        <div th:each="book : ${userDetails.borrowedBooks}" class="book-details">
+            <h3 th:text="${book.title}"></h3>
+            <p>Автор: <span th:text="${book.author}"></span></p>
+            <p>Жанр: <span th:text="${book.genre}"></span></p>
+            <p>Описание: <span th:text="${book.description}"></span></p>
+
+            <!-- Добавляем номера бронирования -->
+            <h2>Информация о бронированиях:</h2>
+            <div class="reservation-container">
+                <div th:each="reservation : ${reservations}" class="reservation-details">
+                    <h3>Номер бронирования: <span th:text="${reservation.number}"></span></h3>
+                    <p>Дата бронирования: <span th:text="${reservation.reservation_date}"></span></p>
+
+                    <!-- Кнопка для сдачи книги -->
+                    <form th:action="@{/reservations/remove/{id}(id=${reservation.id})}" method="post" id="removeForm">
+                        <button type="submit" onclick="return confirm('Вы уверены, что хотите вернуть эту книгу?')">Сдал книгу</button>
+                    </form>
+
+                    <script>
+    // Обработчик успешного удаления бронирования
+    function handleReservationRemoval() {
+        location.reload(); // Перезагрузить текущую страницу
+    }
+
+    // Отправка формы удаления
+    document.getElementById("removeForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Предотвратить отправку формы по умолчанию
+        var form = this;
+
+        fetch(form.action, {
+            method: form.method,
+            body: new FormData(form)
+        })
+        .then(function(response) {
+            if (response.ok) {
+                handleReservationRemoval(); // Обработать успешное удаление
+            } else {
+                alert("Произошла ошибка при удалении бронирования."); // Вывести сообщение об ошибке
+            }
+        })
+        .catch(function(error) {
+            console.error('Произошла ошибка при выполнении запроса:', error);
+            alert("Произошла ошибка при выполнении запроса.");
+        });
+    });
+</script>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопка для удаления пользователя -->
+    <li class="nav-item" sec:authorize="hasRole('MODERATOR')">
+        <form th:action="@{/users/remove/{id}(id=${userDetails.id})}" method="post" id="deleteForm">
+            <button type="submit" onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?')">Удалить</button>
+        </form>
+        <a th:href="@{/users/details/update/{id}(id=${userDetails.id})}">Изменить данные пользователя</a>
+    </li>
+    <a href="/users/all" onclick="history.back();">Назад</a>
+</div>
+
+</body>
+</html>

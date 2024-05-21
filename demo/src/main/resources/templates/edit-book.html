@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head}">
+    <title>Редактировать книгу</title>
+</head>
+<body>
+<div th:replace="~{fragments/navbar}">Navbar</div>
+<h1>Редактировать книгу</h1>
+<form th:object="${book}" method="post" th:action="@{/books/{id}/edit(id=${book.id})}">
+    <label for="title">Название:</label>
+    <input type="text" id="title" name="title" th:value="*{title}" required>
+
+    <label for="author">Автор:</label>
+    <input type="text" id="author" name="author" th:value="*{author}" required>
+
+    <label for="genre">Жанр:</label>
+    <input type="text" id="genre" name="genre" th:value="*{genre}" required>
+
+    <label for="description">Описание:</label>
+    <textarea id="description" name="description" th:text="*{description}" required></textarea>
+
+    <label for="number">Количество:</label>
+    <input type="number" id="number" name="number" th:value="*{number}" required>
+
+    <button type="submit">Сохранить</button>
+</form>
+</body>
+</html>

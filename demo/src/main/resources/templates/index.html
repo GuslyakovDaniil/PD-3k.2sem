@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head">
+    <div th:replace="fragments/navbar">Navbar</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список книг</title>
+    <style>
+        .book-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .book {
+            width: 48%;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .book a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .book-occupied {
+            border-color: red;
+        }
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            position: relative; /* Добавляем позиционирование для корневого контейнера */
+        }
+        .search-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .search-button {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative; /* Добавляем позиционирование для общего контейнера */
+        }
+
+        #bookTitleSuggestions {
+            position: absolute;
+            top: 100%; /* Отступаем от нижней границы поля ввода */
+            left: 0;
+            z-index: 1; /* Устанавливаем z-index, чтобы подсказки были поверх других элементов */
+            background-color: white;
+            border: 1px solid #ccc;
+            border-top: none; /* Убираем верхнюю границу, чтобы не было лишних линий */
+            border-radius: 0 0 4px 4px; /* Скругляем только нижние углы */
+            max-height: 200px; /* Устанавливаем максимальную высоту, чтобы не было слишком много подсказок */
+            overflow-y: auto; /* Добавляем вертикальную прокрутку, если подсказок слишком много */
+            width: 100%; /* Растягиваем по ширине поля ввода */
+            display: none; /* Скрываем изначально */
+        }
+
+        .book-title-suggestion {
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+        .book-title-suggestion:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+<div class="search-container">
+    <form th:action="@{/books/search}" method="get">
+        <div class="search-wrapper">
+            <input type="text" id="bookTitle" name="search" class="search-input" placeholder="Введите название книги" oninput="fetchBookTitles(this.value)">
+            <div id="bookTitleSuggestions"></div> <!-- Этот элемент будет использоваться для вывода подсказок -->
+            <button type="submit" class="search-button">Поиск</button>
+        </div>
+    </form>
+</div>
+<h1>Список книг</h1>
+<div class="book-container">
+    <div class="book" th:classappend="${book.level == false} ? 'book-occupied' : ''" th:each="book : ${books}">
+        <a th:href="@{'/books/' + ${book.id}}">
+            <h2 th:text="${book.title}"></h2>
+            <p>Автор: <span th:text="${book.author}"></span></p>
+            <p>Жанр: <span th:text="${book.genre}"></span></p>
+            <p>Описание: <span th:text="${book.description}"></span></p>
+        </a>
+    </div>
+</div>
+
+<!--<footer th:replace="fragments/footer"/>-->
+
+<script>
+    function fetchBookTitles(searchTerm) {
+        if (searchTerm.length < 3) {
+            return;
+        }
+
+        fetch('/books/titles?search=' + searchTerm)
+            .then(response => response.json())
+            .then(data => {
+                const suggestionsDiv = document.getElementById('bookTitleSuggestions');
+                suggestionsDiv.innerHTML = '';
+                data.forEach(title => {
+                    const suggestion = document.createElement('div');
+                    suggestion.textContent = title;
+                    suggestion.classList.add('book-title-suggestion');
+                    suggestion.onclick = () => {
+                        document.getElementById('bookTitle').value = title;
+                        document.getElementById('bookTitle').dispatchEvent(new Event('input'));
+                        suggestionsDiv.innerHTML = '';
+                    };
+                    suggestionsDiv.appendChild(suggestion);
+                });
+                suggestionsDiv.style.display = data.length > 0 ? 'block' : 'none'; // Показываем или скрываем подсказки в зависимости от их наличия
+            })
+            .catch(error => console.error('Ошибка при получении предложений:', error));
+    }
+</script>
+
+</body>
+</html>

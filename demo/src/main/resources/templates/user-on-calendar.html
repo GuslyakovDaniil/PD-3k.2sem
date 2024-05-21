@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Книги, забронированные пользователем</title>
+</head>
+<body>
+<h1>Список забронированных книг на дату: <span th:text="${selectedDate}"></span></h1>
+<form th:action="@{/reservations/updateReservation}" method="post" id="updateForm">
+    <table>
+        <thead>
+        <tr>
+            <th>Название книги</th>
+            <th>Дата бронирования</th>
+            <th>Номер книги</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="reservation, rowStat : ${reservations}">
+            <td th:text="${reservation.book.title}"></td>
+            <td th:text="${#dates.format(reservation.reservation_date, 'yyyy.MM.dd')}"></td>
+            <td>
+                <input type="hidden" th:name="reservations[__${rowStat.index}__].id" th:value="${reservation.id}"/>
+                <input type="text" th:name="reservations[__${rowStat.index}__].number" th:value="${reservation.number}">
+            </td>
+            <td>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+<button type="button" onclick="submitForm()">Сохранить все изменения</button>
+
+<script>
+    function submitForm() {
+        document.getElementById('updateForm').submit();
+    }
+</script>
+</body>
+</html>
